@@ -1,0 +1,22 @@
+name: Seed Excalidraw
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Copy Excalidraw history
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILTER_BRANCH_SQUELCH_WARNING: 1
+        run: |
+          git clone --branch master --single-branch https://github.com/excalidraw/excalidraw.git source
+          cd source
+          git filter-branch --force --index-filter 'git rm -r --cached --ignore-unmatch .github/workflows' --prune-empty -- master
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" master:master
