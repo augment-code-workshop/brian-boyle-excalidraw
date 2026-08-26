@@ -141,6 +141,11 @@ describe("contextMenu element", () => {
 
     expect(contextMenu).not.toBeNull();
     expect(contextMenuOptions?.length).toBe(expectedContextMenuItems.length);
+    expect(
+      Array.from(contextMenuOptions ?? [])
+        .slice(0, 4)
+        .map((item) => item.dataset.testid),
+    ).toEqual(["cut", "copy", "paste", "duplicateSelection"]);
     expectedContextMenuItems.forEach((item) => {
       expect(
         contextMenu?.querySelector(`li[data-testid="${item}"]`),
