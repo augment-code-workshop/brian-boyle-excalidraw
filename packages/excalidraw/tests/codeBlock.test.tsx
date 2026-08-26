@@ -70,6 +70,9 @@ describe("code block element", () => {
       height: CODE_BLOCK_DEFAULT_HEIGHT,
       roundness: { type: expect.any(Number) },
     });
+
+    const explicitlySquare = { ...serialized, roundness: null };
+    expect(restoreElements([explicitlySquare], null)[0].roundness).toBeNull();
   });
 
   it("exports the card title, language, and highlighted code as SVG text", async () => {
@@ -95,6 +98,41 @@ describe("code block element", () => {
       ),
     );
     expect(tokenColors.size).toBeGreaterThan(1);
+  });
+
+  it("clips SVG output to its containing frame", async () => {
+    const frame = API.createElement({
+      type: "frame",
+      width: 200,
+      height: 150,
+    });
+    const element = API.createElement({
+      type: "codeblock",
+      x: 150,
+      y: 100,
+      width: 420,
+      height: 260,
+      frameId: frame.id,
+    });
+    const svg = await exportUtils.exportToSvg(
+      [frame, element],
+      {
+        exportBackground: false,
+        viewBackgroundColor: "#ffffff",
+        frameRendering: {
+          enabled: true,
+          name: true,
+          outline: true,
+          clip: true,
+        },
+      },
+      null,
+    );
+
+    expect(svg.querySelector(`[data-id="${element.id}"]`)).toHaveAttribute(
+      "clip-path",
+      `url(#${frame.id})`,
+    );
   });
 });
 

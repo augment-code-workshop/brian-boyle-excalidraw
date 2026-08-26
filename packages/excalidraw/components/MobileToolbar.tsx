@@ -33,6 +33,7 @@ import {
   bucketFillIcon,
   mermaidLogoIcon,
   MagicIcon,
+  codeIcon,
 } from "./icons";
 
 import "./ToolIcon.scss";
@@ -77,6 +78,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
   const drawShapeToolSelected = activeTool.type === "autoshape";
   const laserToolSelected = activeTool.type === "laser";
   const embeddableToolSelected = activeTool.type === "embeddable";
+  const codeBlockToolSelected = activeTool.type === "codeblock";
   const bucketFillToolSelected = activeTool.type === "bucketfill";
 
   const { TTDDialogTriggerTunnel } = useTunnels();
@@ -116,6 +118,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
       "text",
       "frame",
       "embeddable",
+      "codeblock",
       "laser",
       "bucketfill",
       "magicframe",
@@ -139,6 +142,8 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
       ? frameToolIcon
       : activeTool.type === "embeddable"
       ? EmbedIcon
+      : activeTool.type === "codeblock"
+      ? codeIcon
       : activeTool.type === "laser"
       ? laserPointerToolIcon
       : activeTool.type === "bucketfill"
@@ -298,6 +303,15 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
             disabled={isToolButtonDisabled(app, "embeddable")}
           >
             {t("toolBar.embeddable")}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onSelect={() => app.setActiveTool({ type: "codeblock" })}
+            icon={codeIcon}
+            data-testid="toolbar-codeblock"
+            selected={codeBlockToolSelected}
+            disabled={isToolButtonDisabled(app, "codeblock")}
+          >
+            {t("toolBar.codeblock")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "autoshape" })}

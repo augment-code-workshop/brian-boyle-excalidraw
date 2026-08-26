@@ -46,7 +46,6 @@ import { ShapeCache } from "@excalidraw/element";
 import { getElementAbsoluteCoords } from "@excalidraw/element";
 
 import type {
-  ExcalidrawCodeBlockElement,
   ExcalidrawElement,
   ExcalidrawTextElementWithContainer,
   NonDeletedExcalidrawElement,
@@ -188,7 +187,7 @@ const renderElementToSvg = (
       break;
     }
     case "codeblock": {
-      const codeBlock = element as ExcalidrawCodeBlockElement;
+      const codeBlock = element;
       const palette = getCodeBlockPalette(renderConfig.theme);
       const group = svgRoot.ownerDocument.createElementNS(SVG_NS, "g");
       group.setAttribute(
@@ -294,7 +293,14 @@ const renderElementToSvg = (
       }
 
       group.appendChild(content);
-      addToRoot(group, codeBlock);
+      const frameClippedGroup = maybeWrapNodesInFrameClipPath(
+        codeBlock,
+        root,
+        [group],
+        renderConfig.frameRendering,
+        elementsMap,
+      );
+      addToRoot(frameClippedGroup || group, codeBlock);
       break;
     }
     case "iframe":

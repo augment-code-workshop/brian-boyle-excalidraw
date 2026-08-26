@@ -707,9 +707,10 @@ export const restoreElement = (
         ...element,
         width: element.width || CODE_BLOCK_DEFAULT_WIDTH,
         height: element.height || CODE_BLOCK_DEFAULT_HEIGHT,
-        roundness: element.roundness ?? {
-          type: ROUNDNESS.ADAPTIVE_RADIUS,
-        },
+        roundness:
+          element.roundness === undefined
+            ? { type: ROUNDNESS.ADAPTIVE_RADIUS }
+            : element.roundness,
       };
       return restoreElementWithProperties(element, {
         title:

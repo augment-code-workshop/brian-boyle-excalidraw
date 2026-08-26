@@ -96,6 +96,40 @@ describe("Test Transform", () => {
     });
   });
 
+  it("should transform code block elements", () => {
+    const [element] = convertToExcalidrawElements(
+      [
+        {
+          type: "codeblock",
+          id: "code-block",
+          x: 100,
+          y: 200,
+          title: "Example",
+          language: "typescript",
+          code: "const answer = 42;",
+        },
+      ],
+      opts,
+    );
+
+    expect(element).toMatchObject({
+      type: "codeblock",
+      x: 100,
+      y: 200,
+      width: 420,
+      height: 260,
+      title: "Example",
+      language: "typescript",
+      code: "const answer = 42;",
+    });
+    expect(JSON.parse(JSON.stringify(element))).toMatchObject({
+      type: "codeblock",
+      title: "Example",
+      language: "typescript",
+      code: "const answer = 42;",
+    });
+  });
+
   it("should transform text element", () => {
     const elements = [
       {
