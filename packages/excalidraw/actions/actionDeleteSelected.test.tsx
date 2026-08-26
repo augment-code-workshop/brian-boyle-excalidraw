@@ -34,6 +34,16 @@ describe("delete confirmation", () => {
     await render(<Excalidraw />);
   });
 
+  it("does not track the confirmed action re-entry", () => {
+    const trackPredicate =
+      typeof actionDeleteSelected.trackEvent === "object"
+        ? actionDeleteSelected.trackEvent.predicate
+        : undefined;
+
+    expect(trackPredicate?.(h.state, h.elements, null)).toBe(true);
+    expect(trackPredicate?.(h.state, h.elements, true)).toBe(false);
+  });
+
   it("deletes one simple selected element immediately", () => {
     const rectangle = API.createElement({ type: "rectangle" });
     API.setElements([rectangle]);

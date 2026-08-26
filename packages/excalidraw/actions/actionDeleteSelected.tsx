@@ -211,7 +211,11 @@ export const actionDeleteSelected = register<boolean>({
   name: "deleteSelectedElements",
   label: "labels.delete",
   icon: TrashIcon,
-  trackEvent: { category: "element", action: "delete" },
+  trackEvent: {
+    category: "element",
+    action: "delete",
+    predicate: (_appState, _elements, isConfirmed) => isConfirmed !== true,
+  },
   perform: (elements, appState, formData, app) => {
     if (appState.selectedLinearElement?.isEditing) {
       const { elementId, selectedPointsIndices } =
