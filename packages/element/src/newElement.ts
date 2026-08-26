@@ -5,6 +5,7 @@ import {
   DEFAULT_TEXT_ALIGN,
   DEFAULT_VERTICAL_ALIGN,
   DEFAULT_STROKE_STREAMLINE,
+  ROUNDNESS,
   VERTICAL_ALIGN,
   randomInteger,
   randomId,
@@ -26,6 +27,13 @@ import { getBoundTextMaxWidth } from "./textElement";
 import { normalizeText, measureText } from "./textMeasurements";
 import { wrapText } from "./textWrapping";
 
+import {
+  CODE_BLOCK_DEFAULT_HEIGHT,
+  CODE_BLOCK_DEFAULT_WIDTH,
+  DEFAULT_CODE_BLOCK_CODE,
+  DEFAULT_CODE_BLOCK_LANGUAGE,
+  DEFAULT_CODE_BLOCK_TITLE,
+} from "./codeBlock";
 import { isLineElement } from "./typeChecks";
 
 import type {
@@ -49,6 +57,7 @@ import type {
   ExcalidrawArrowElement,
   ExcalidrawElbowArrowElement,
   ExcalidrawLineElement,
+  ExcalidrawCodeBlockElement,
 } from "./types";
 
 export type ElementConstructorOpts = MarkOptional<
@@ -183,6 +192,27 @@ export const newIframeElement = (
     ..._newElementBase<ExcalidrawIframeElement>("iframe", opts),
   };
 };
+
+export const newCodeBlockElement = (
+  opts: {
+    title?: ExcalidrawCodeBlockElement["title"];
+    language?: ExcalidrawCodeBlockElement["language"];
+    code?: ExcalidrawCodeBlockElement["code"];
+  } & ElementConstructorOpts,
+): NonDeleted<ExcalidrawCodeBlockElement> => ({
+  ..._newElementBase<ExcalidrawCodeBlockElement>("codeblock", {
+    backgroundColor: "#f8f9fa",
+    fillStyle: "solid",
+    roughness: 0,
+    roundness: { type: ROUNDNESS.ADAPTIVE_RADIUS },
+    ...opts,
+    width: opts.width ?? CODE_BLOCK_DEFAULT_WIDTH,
+    height: opts.height ?? CODE_BLOCK_DEFAULT_HEIGHT,
+  }),
+  title: opts.title ?? DEFAULT_CODE_BLOCK_TITLE,
+  language: opts.language ?? DEFAULT_CODE_BLOCK_LANGUAGE,
+  code: opts.code ?? DEFAULT_CODE_BLOCK_CODE,
+});
 
 export const newFrameElement = (
   opts: {

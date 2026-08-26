@@ -1354,6 +1354,7 @@ describe("tool locking & selection", () => {
         // no top-level toolbar button (rendered in the extra-tools dropdown)
         value !== "frame" &&
         value !== "embeddable" &&
+        value !== "codeblock" &&
         value !== "autoshape" &&
         value !== "bucketfill"
       ) {

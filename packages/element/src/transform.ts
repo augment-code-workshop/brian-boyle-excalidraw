@@ -21,6 +21,7 @@ import type { MarkOptional } from "@excalidraw/common/utility-types";
 import { bindBindingElement } from "./binding";
 import {
   newArrowElement,
+  newCodeBlockElement,
   newElement,
   newFrameElement,
   newImageElement,
@@ -45,6 +46,7 @@ import { Scene } from "./Scene";
 import type {
   ExcalidrawArrowElement,
   ExcalidrawBindableElement,
+  ExcalidrawCodeBlockElement,
   ExcalidrawElement,
   ExcalidrawFrameElement,
   ExcalidrawFreeDrawElement,
@@ -187,6 +189,11 @@ export type ExcalidrawElementSkeleton =
     } & Partial<ExcalidrawLinearElement>)
   | ValidContainer
   | ValidLinearElement
+  | ({
+      type: "codeblock";
+      x: number;
+      y: number;
+    } & Partial<ExcalidrawCodeBlockElement>)
   | ({
       type: "text";
       text: string;
@@ -580,6 +587,10 @@ export const convertToExcalidrawElements = (
           excalidrawElement,
           getSizeFromPoints(excalidrawElement.points),
         );
+        break;
+      }
+      case "codeblock": {
+        excalidrawElement = newCodeBlockElement(element);
         break;
       }
       case "text": {

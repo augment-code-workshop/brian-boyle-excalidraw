@@ -37,6 +37,7 @@ import {
   adjustmentsIcon,
   DotsHorizontalIcon,
   pencilIcon,
+  codeIcon,
 } from "./icons";
 
 import { Island } from "./Island";
@@ -194,6 +195,8 @@ export const SelectedShapeActions = ({
 
       {predicates.verticalAlign && renderAction("changeVerticalAlign")}
       {predicates.arrowheads && <>{renderAction("changeArrowhead")}</>}
+
+      {predicates.codeBlock && renderAction("changeCodeBlock")}
 
       {predicates.opacity && renderAction("changeOpacity")}
 
@@ -400,6 +403,69 @@ const CombinedArrowProperties = ({
             onClose={() => {}}
           >
             {renderAction("changeArrowProperties")}
+          </PropertiesPopover>
+        )}
+      </Popover.Root>
+    </div>
+  );
+};
+
+const CombinedCodeBlockProperties = ({
+  appState,
+  renderAction,
+  setAppState,
+  predicates,
+  container,
+}: {
+  appState: UIAppState;
+  renderAction: ActionManager["renderAction"];
+  setAppState: React.Component<any, AppState>["setState"];
+  predicates: ShapeActionPredicates;
+  container: HTMLDivElement | null;
+}) => {
+  if (!predicates.codeBlock) {
+    return null;
+  }
+
+  const isOpen = appState.openPopup === "compactCodeBlockProperties";
+  return (
+    <div className="compact-action-item">
+      <Popover.Root
+        open={isOpen}
+        onOpenChange={(open) =>
+          setAppState({
+            openPopup: open ? "compactCodeBlockProperties" : null,
+          })
+        }
+      >
+        <Popover.Trigger asChild>
+          <button
+            type="button"
+            className={clsx("compact-action-button properties-trigger", {
+              active: isOpen,
+            })}
+            title="Code block"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setAppState({
+                openPopup: isOpen ? null : "compactCodeBlockProperties",
+              });
+            }}
+          >
+            {codeIcon}
+          </button>
+        </Popover.Trigger>
+        {isOpen && (
+          <PropertiesPopover
+            className={PROPERTIES_CLASSES}
+            container={container}
+            style={{ width: "18rem" }}
+            onClose={() => {}}
+          >
+            <div className="selected-shape-actions">
+              {renderAction("changeCodeBlock")}
+            </div>
           </PropertiesPopover>
         )}
       </Popover.Root>
@@ -673,6 +739,13 @@ export const CompactShapeActions = ({
         container={container}
         app={app}
       />
+      <CombinedCodeBlockProperties
+        appState={appState}
+        renderAction={renderAction}
+        setAppState={setAppState}
+        predicates={predicates}
+        container={container}
+      />
       {/* Linear Editor */}
       {predicates.lineEditor && (
         <div className="compact-action-item">
@@ -822,6 +895,13 @@ export const MobileShapeActions = ({
           predicates={predicates}
           container={container}
           app={app}
+        />
+        <CombinedCodeBlockProperties
+          appState={appState}
+          renderAction={renderAction}
+          setAppState={setAppState}
+          predicates={predicates}
+          container={container}
         />
         {/* Linear Editor */}
         <LinearEditorAction

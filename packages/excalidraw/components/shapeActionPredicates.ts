@@ -133,6 +133,11 @@ export const getShapeActionPredicates = (
     arrowType: forToolOrSelection(toolIsArrow),
     arrowheads: forToolOrSelection(canHaveArrowheads),
 
+    // element-specific content
+    codeBlock:
+      activeToolType === "codeblock" ||
+      targetElements.some((element) => element.type === "codeblock"),
+
     // text
     text: activeToolType === "text" || targetElements.some(isTextElement),
     textAlign:

@@ -92,6 +92,36 @@
   }
 }
 
+.codeblock-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  input,
+  select,
+  textarea {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid var(--color-border-outline-variant);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    color: var(--text-primary-color);
+    background: var(--input-bg-color);
+  }
+
+  textarea {
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+}
+
 .compact-shape-actions {
   display: flex;
   flex-direction: column;

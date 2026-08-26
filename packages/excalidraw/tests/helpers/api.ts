@@ -13,6 +13,7 @@ import {
 
 import {
   newArrowElement,
+  newCodeBlockElement,
   newElement,
   newEmbeddableElement,
   newFrameElement,
@@ -42,6 +43,7 @@ import type {
   ExcalidrawMagicFrameElement,
   ExcalidrawElbowArrowElement,
   ExcalidrawArrowElement,
+  ExcalidrawCodeBlockElement,
   FixedSegment,
   NonDeleted,
   NonDeletedExcalidrawElement,
@@ -215,6 +217,13 @@ export class API {
     fileId?: T extends "image" ? string : never;
     scale?: T extends "image" ? ExcalidrawImageElement["scale"] : never;
     status?: T extends "image" ? ExcalidrawImageElement["status"] : never;
+    title?: T extends "codeblock"
+      ? ExcalidrawCodeBlockElement["title"]
+      : never;
+    language?: T extends "codeblock"
+      ? ExcalidrawCodeBlockElement["language"]
+      : never;
+    code?: T extends "codeblock" ? ExcalidrawCodeBlockElement["code"] : never;
     startBinding?: T extends "arrow"
       ? ExcalidrawArrowElement["startBinding"] | ExcalidrawElbowArrowElement["startBinding"]
       : never;
@@ -242,6 +251,8 @@ export class API {
       ? ExcalidrawFrameElement
       : T extends "magicframe"
       ? ExcalidrawMagicFrameElement
+      : T extends "codeblock"
+      ? ExcalidrawCodeBlockElement
       : ExcalidrawGenericElement
   > => {
     let element: Mutable<ExcalidrawElement> = null!;
@@ -310,6 +321,14 @@ export class API {
         element = newIframeElement({
           type: "iframe",
           ...base,
+        });
+        break;
+      case "codeblock":
+        element = newCodeBlockElement({
+          ...base,
+          title: rest.title,
+          language: rest.language,
+          code: rest.code,
         });
         break;
       case "text":

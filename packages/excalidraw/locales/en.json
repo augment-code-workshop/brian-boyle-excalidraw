@@ -333,6 +333,7 @@
     "frame": "Frame tool",
     "magicframe": "Wireframe to code",
     "embeddable": "Web Embed",
+    "codeblock": "Code block",
     "laser": "Laser pointer",
     "persistentLaser": "Persistent laser",
     "clearPersistentLaser": "Clear persistent strokes",
@@ -360,6 +361,7 @@
     "frame": "Frame",
     "magicframe": "Wireframe to code",
     "embeddable": "Web Embed",
+    "codeblock": "Code block",
     "selection": "Selection",
     "iframe": "IFrame"
   },
@@ -377,6 +379,7 @@
     "freeDraw": "Click and drag, release when you're finished",
     "text": "Tip: you can also add text by double-clicking anywhere with the selection tool",
     "embeddable": "Click-drag to create a website embed",
+    "codeblock": "Click-drag to create a code block",
     "autoshape": "Draw rectangles, circles, diamonds, lines and arrows",
     "text_selected": "Double-click or press {{shortcut}} to edit text",
     "text_editing": "Press {{shortcut_1}} or {{shortcut_2}} to finish editing",
