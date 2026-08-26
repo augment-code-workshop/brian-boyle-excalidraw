@@ -26,6 +26,7 @@ export class LaserTrails implements Trail {
       ...this.getTrailOptions(),
       sizeMapping: () => 1,
       fill: () => DEFAULT_LASER_COLOR,
+      continuous: false,
     });
   }
 
@@ -42,6 +43,10 @@ export class LaserTrails implements Trail {
     if (this.activeLocalTrail === this.persistentTrail) {
       this.activeLocalTrail = undefined;
     }
+  }
+
+  refreshPersistentTrails() {
+    this.persistentTrail.refresh();
   }
 
   private getTrailOptions() {

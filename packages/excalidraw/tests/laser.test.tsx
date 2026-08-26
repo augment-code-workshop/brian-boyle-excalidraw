@@ -224,12 +224,22 @@ describe("laser tool interactions", () => {
 
       const svgLayer = document.querySelector(".SVGLayer svg")!;
       expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+      expect(vi.getTimerCount()).toBe(0);
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(3000);
       });
 
+      const persistentPath = svgLayer.querySelector("path")!;
+      const pathBeforeScroll = persistentPath.getAttribute("d");
+      act(() => {
+        h.app.updateScene({
+          appState: { scrollX: h.state.scrollX + 10 },
+        });
+      });
+
       expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+      expect(persistentPath.getAttribute("d")).not.toBe(pathBeforeScroll);
       expect(h.app.scene.getElementsIncludingDeleted()).toHaveLength(0);
 
       fireEvent.click(

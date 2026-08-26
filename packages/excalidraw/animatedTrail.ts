@@ -25,6 +25,7 @@ export interface AnimatedTrailOptions {
   fill: (trail: AnimatedTrail) => string;
   stroke?: (trail: AnimatedTrail) => string;
   animateTrail?: boolean;
+  continuous?: boolean;
 }
 
 export class AnimatedTrail implements Trail {
@@ -95,11 +96,13 @@ export class AnimatedTrail implements Trail {
     if (!AnimationController.running(this.key)) {
       AnimationController.start(this.key, () => {
         const needsNext = this.onFrame();
-        if (needsNext) {
+        if (needsNext && this.options.continuous !== false) {
           return { keep: true };
         }
 
-        this.cleanup();
+        if (!needsNext) {
+          this.cleanup();
+        }
 
         return null;
       });
@@ -143,6 +146,10 @@ export class AnimatedTrail implements Trail {
   clearTrails() {
     this.pastTrails = [];
     this.currentTrail = undefined;
+    this.update();
+  }
+
+  refresh() {
     this.update();
   }
 
