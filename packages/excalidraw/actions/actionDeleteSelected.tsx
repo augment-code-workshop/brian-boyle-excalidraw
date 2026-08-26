@@ -29,6 +29,8 @@ import { t } from "../i18n";
 import { getSelectedElements, isSomeElementSelected } from "../scene";
 import { TrashIcon } from "../components/icons";
 import { IconButton } from "../components/IconButton";
+import { activeConfirmDialogAtom } from "../components/ActiveConfirmDialog";
+import { editorJotaiStore } from "../editor-jotai";
 
 import { useStylesPanelMode } from "../components/App";
 
@@ -205,7 +207,7 @@ const handleGroupEditingState = (
   return appState;
 };
 
-export const actionDeleteSelected = register({
+export const actionDeleteSelected = register<boolean>({
   name: "deleteSelectedElements",
   label: "labels.delete",
   icon: TrashIcon,
@@ -269,6 +271,18 @@ export const actionDeleteSelected = register({
           },
         },
         captureUpdate: CaptureUpdateAction.IMMEDIATELY,
+      };
+    }
+
+    const selectedElements = getSelectedElements(elements, appState);
+    if (
+      formData !== true &&
+      (selectedElements.length > 1 ||
+        selectedElements.some((element) => isFrameLikeElement(element)))
+    ) {
+      editorJotaiStore.set(activeConfirmDialogAtom, "deleteSelection");
+      return {
+        captureUpdate: CaptureUpdateAction.NEVER,
       };
     }
 
