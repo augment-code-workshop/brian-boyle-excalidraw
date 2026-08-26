@@ -8,7 +8,7 @@ import { getLinkHandleFromCoords } from "../components/hyperlink/helpers";
 
 import { API } from "./helpers/api";
 import { Pointer } from "./helpers/ui";
-import { act, GlobalTestState, render, waitFor } from "./test-utils";
+import { act, fireEvent, GlobalTestState, render, waitFor } from "./test-utils";
 
 import type { Collaborator, ExcalidrawProps, SocketId } from "../types";
 
@@ -170,6 +170,86 @@ describe("laser tool interactions", () => {
     expect(h.state.scrollX).toBe(initialScrollX);
     expect(h.state.scrollY).toBe(initialScrollY);
     expect(GlobalTestState.interactiveCanvas.style.cursor).toContain("");
+  });
+
+  it("fades local strokes in the default mode", async () => {
+    await render(<Excalidraw />);
+
+    act(() => {
+      h.app.setActiveTool({ type: "laser" });
+    });
+
+    window.EXCALIDRAW_THROTTLE_RENDER = true;
+    vi.useFakeTimers();
+    try {
+      mouse.downAt(30, 30);
+      mouse.moveTo(60, 60);
+      mouse.upAt(60, 60);
+
+      const svgLayer = document.querySelector(".SVGLayer svg")!;
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1100);
+      });
+
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(0);
+    } finally {
+      window.EXCALIDRAW_THROTTLE_RENDER = undefined;
+      vi.useRealTimers();
+    }
+  });
+
+  it("retains and clears persistent strokes without adding scene elements", async () => {
+    await render(<Excalidraw />);
+
+    fireEvent.click(
+      GlobalTestState.renderResult.container.querySelector(
+        ".App-toolbar__extra-tools-trigger",
+      )!,
+    );
+    fireEvent.click(
+      document.querySelector('[data-testid="toolbar-persistent-laser"]')!,
+    );
+
+    expect(h.app.laserTrails.isPersistentMode).toBe(true);
+    expect(h.state.activeTool.type).toBe("laser");
+
+    window.EXCALIDRAW_THROTTLE_RENDER = true;
+    vi.useFakeTimers();
+    try {
+      mouse.downAt(30, 30);
+      mouse.moveTo(60, 60);
+      mouse.upAt(60, 60);
+
+      const svgLayer = document.querySelector(".SVGLayer svg")!;
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000);
+      });
+
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+      expect(h.app.scene.getElementsIncludingDeleted()).toHaveLength(0);
+
+      fireEvent.click(
+        GlobalTestState.renderResult.container.querySelector(
+          ".App-toolbar__extra-tools-trigger",
+        )!,
+      );
+      fireEvent.click(
+        document.querySelector('[data-testid="clear-persistent-laser"]')!,
+      );
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(20);
+      });
+
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(0);
+    } finally {
+      window.EXCALIDRAW_THROTTLE_RENDER = undefined;
+      vi.useRealTimers();
+    }
   });
 
   it("cleans up remote laser trails when the last collaborator leaves", async () => {

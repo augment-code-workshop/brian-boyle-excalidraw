@@ -1110,6 +1110,7 @@ export type AppClassProperties = {
   files: BinaryFiles;
   editorInterface: App["editorInterface"];
   scene: App["scene"];
+  laserTrails: App["laserTrails"];
   syncActionResult: App["syncActionResult"];
   fonts: App["fonts"];
   pasteFromClipboard: App["pasteFromClipboard"];

@@ -11,14 +11,37 @@ import type { SocketId } from "./types";
 
 export class LaserTrails implements Trail {
   public localTrail: AnimatedTrail;
+  private persistentTrail: AnimatedTrail;
+  private activeLocalTrail?: AnimatedTrail;
   private collabTrails = new Map<SocketId, AnimatedTrail>();
   private container?: SVGSVGElement;
+  private persistentMode = false;
 
   constructor(private app: App) {
     this.localTrail = new AnimatedTrail(app, {
       ...this.getTrailOptions(),
       fill: () => DEFAULT_LASER_COLOR,
     });
+    this.persistentTrail = new AnimatedTrail(app, {
+      ...this.getTrailOptions(),
+      sizeMapping: () => 1,
+      fill: () => DEFAULT_LASER_COLOR,
+    });
+  }
+
+  get isPersistentMode() {
+    return this.persistentMode;
+  }
+
+  setPersistentMode(persistent: boolean) {
+    this.persistentMode = persistent;
+  }
+
+  clearPersistentTrails() {
+    this.persistentTrail.clearTrails();
+    if (this.activeLocalTrail === this.persistentTrail) {
+      this.activeLocalTrail = undefined;
+    }
   }
 
   private getTrailOptions() {
@@ -43,24 +66,31 @@ export class LaserTrails implements Trail {
   }
 
   startPath(x: number, y: number): void {
-    this.localTrail.startPath(x, y);
+    this.activeLocalTrail = this.persistentMode
+      ? this.persistentTrail
+      : this.localTrail;
+    this.activeLocalTrail.startPath(x, y);
   }
 
   addPointToPath(x: number, y: number): void {
-    this.localTrail.addPointToPath(x, y);
+    this.activeLocalTrail?.addPointToPath(x, y);
   }
 
   endPath(): void {
-    this.localTrail.endPath();
+    this.activeLocalTrail?.endPath();
+    this.activeLocalTrail = undefined;
   }
 
   start(container: SVGSVGElement) {
     this.container = container;
     this.localTrail.start(container);
+    this.persistentTrail.start(container);
   }
 
   stop() {
     this.localTrail.stop();
+    this.persistentTrail.stop();
+    this.activeLocalTrail = undefined;
     this.stopCollabTrails();
     this.container = undefined;
   }
