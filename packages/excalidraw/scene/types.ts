@@ -166,6 +166,7 @@ export type ElementShapes = {
   diamond: Drawable;
   iframe: Drawable;
   embeddable: Drawable;
+  codeblock: Drawable;
   freedraw: (Drawable | SVGPathString)[];
   arrow: Drawable[];
   line: Drawable[];

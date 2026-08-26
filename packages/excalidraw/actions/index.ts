@@ -1,3 +1,4 @@
+export { actionChangeCodeBlock } from "./actionCodeBlock";
 export { actionDeleteSelected } from "./actionDeleteSelected";
 export {
   actionBringForward,

@@ -127,6 +127,7 @@ import {
   newFrameElement,
   newFreeDrawElement,
   newEmbeddableElement,
+  newCodeBlockElement,
   newMagicFrameElement,
   newIframeElement,
   newArrowElement,
@@ -10294,7 +10295,8 @@ class App extends React.Component<AppProps, AppState> {
       | "diamond"
       | "ellipse"
       | "iframe"
-      | "embeddable",
+      | "embeddable"
+      | "codeblock",
   ) {
     return this.state.currentItemRoundness === "round"
       ? {
@@ -10313,7 +10315,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   private createGenericElementOnPointerDown = (
-    elementType: ExcalidrawGenericElement["type"] | "embeddable",
+    elementType: ExcalidrawGenericElement["type"] | "embeddable" | "codeblock",
     pointerDownState: PointerDownState,
   ): void => {
     const [gridX, gridY] = getGridPoint(
@@ -10349,6 +10351,16 @@ class App extends React.Component<AppProps, AppState> {
       element = newEmbeddableElement({
         type: "embeddable",
         ...baseElementAttributes,
+      });
+    } else if (elementType === "codeblock") {
+      element = newCodeBlockElement({
+        ...baseElementAttributes,
+        backgroundColor:
+          baseElementAttributes.backgroundColor === "transparent"
+            ? "#f8f9fa"
+            : baseElementAttributes.backgroundColor,
+        fillStyle: "solid",
+        roughness: 0,
       });
     } else {
       element = newElement({

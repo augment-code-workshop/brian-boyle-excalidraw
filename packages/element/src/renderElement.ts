@@ -65,6 +65,15 @@ import {
 } from "./typeChecks";
 import { getContainingFrame } from "./frame";
 import { getCornerRadius } from "./utils";
+import {
+  CODE_BLOCK_FONT_SIZE,
+  CODE_BLOCK_HEADER_HEIGHT,
+  CODE_BLOCK_LINE_HEIGHT,
+  CODE_BLOCK_PADDING,
+  getCodeBlockLines,
+  getCodeBlockPalette,
+  tokenizeCodeLine,
+} from "./codeBlock";
 
 import { ShapeCache } from "./shape";
 
@@ -79,6 +88,7 @@ import type {
   ExcalidrawFrameLikeElement,
   NonDeletedSceneElementsMap,
   ElementsMap,
+  ExcalidrawCodeBlockElement,
 } from "./types";
 
 import type { RoughCanvas } from "roughjs/bin/canvas";
@@ -315,6 +325,68 @@ const drawImagePlaceholder = (
   );
 };
 
+const drawCodeBlockOnCanvas = (
+  element: ExcalidrawCodeBlockElement,
+  context: CanvasRenderingContext2D,
+  theme: StaticCanvasRenderConfig["theme"],
+) => {
+  const palette = getCodeBlockPalette(theme);
+  const contentWidth = Math.max(0, element.width - CODE_BLOCK_PADDING * 2);
+
+  context.save();
+  context.beginPath();
+  context.rect(0, 0, element.width, element.height);
+  context.clip();
+
+  context.fillStyle = palette.title;
+  context.font = "600 16px system-ui, sans-serif";
+  context.textBaseline = "middle";
+  context.fillText(
+    element.title || "Code",
+    CODE_BLOCK_PADDING,
+    CODE_BLOCK_HEADER_HEIGHT / 2,
+    Math.max(0, contentWidth - 90),
+  );
+
+  context.fillStyle = palette.muted;
+  context.font = "12px system-ui, sans-serif";
+  context.textAlign = "right";
+  context.fillText(
+    element.language,
+    element.width - CODE_BLOCK_PADDING,
+    CODE_BLOCK_HEADER_HEIGHT / 2,
+    80,
+  );
+
+  context.strokeStyle = palette.divider;
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(CODE_BLOCK_PADDING, CODE_BLOCK_HEADER_HEIGHT);
+  context.lineTo(element.width - CODE_BLOCK_PADDING, CODE_BLOCK_HEADER_HEIGHT);
+  context.stroke();
+
+  context.font = `${CODE_BLOCK_FONT_SIZE}px ui-monospace, SFMono-Regular, Consolas, monospace`;
+  context.textAlign = "left";
+  context.textBaseline = "top";
+  let y = CODE_BLOCK_HEADER_HEIGHT + CODE_BLOCK_PADDING;
+  const maxY = element.height - CODE_BLOCK_PADDING;
+  const maxLines = Math.max(0, Math.floor((maxY - y) / CODE_BLOCK_LINE_HEIGHT));
+  for (const line of getCodeBlockLines(element, maxLines)) {
+    let x = CODE_BLOCK_PADDING;
+    for (const token of tokenizeCodeLine(line, element.language)) {
+      context.fillStyle = palette[token.type];
+      context.fillText(token.text, x, y);
+      x += context.measureText(token.text).width;
+      if (x > element.width - CODE_BLOCK_PADDING) {
+        break;
+      }
+    }
+    y += CODE_BLOCK_LINE_HEIGHT;
+  }
+
+  context.restore();
+};
+
 const drawElementOnCanvas = (
   element: NonDeletedExcalidrawElement,
   rc: RoughCanvas,
@@ -331,6 +403,13 @@ const drawElementOnCanvas = (
       context.lineCap = "round";
 
       rc.draw(ShapeCache.generateElementShape(element, renderConfig));
+      break;
+    }
+    case "codeblock": {
+      context.lineJoin = "round";
+      context.lineCap = "round";
+      rc.draw(ShapeCache.generateElementShape(element, renderConfig));
+      drawCodeBlockOnCanvas(element, context, renderConfig.theme);
       break;
     }
     case "arrow":
@@ -821,7 +900,8 @@ export const renderElement = (
     case "image":
     case "text":
     case "iframe":
-    case "embeddable": {
+    case "embeddable":
+    case "codeblock": {
       if (renderConfig.isExporting) {
         const [x1, y1, x2, y2] = getElementAbsoluteCoords(element, elementsMap);
         const centerX = (x1 + x2) / 2;

@@ -124,6 +124,24 @@ export type ExcalidrawIframeLikeElement =
   | ExcalidrawIframeElement
   | ExcalidrawEmbeddableElement;
 
+export type CodeBlockLanguage =
+  | "plaintext"
+  | "javascript"
+  | "typescript"
+  | "json"
+  | "html"
+  | "css"
+  | "python"
+  | "bash";
+
+export type ExcalidrawCodeBlockElement = _ExcalidrawElementBase &
+  Readonly<{
+    type: "codeblock";
+    title: string;
+    language: CodeBlockLanguage;
+    code: string;
+  }>;
+
 export type IframeData =
   | {
       intrinsicSize: { w: number; h: number };
@@ -196,6 +214,7 @@ export type ExcalidrawRectanguloidElement =
   | ExcalidrawIframeLikeElement
   | ExcalidrawFrameLikeElement
   | ExcalidrawEmbeddableElement
+  | ExcalidrawCodeBlockElement
   | ExcalidrawSelectionElement;
 
 /**
@@ -213,7 +232,8 @@ export type ExcalidrawElement =
   | ExcalidrawFrameElement
   | ExcalidrawMagicFrameElement
   | ExcalidrawIframeElement
-  | ExcalidrawEmbeddableElement;
+  | ExcalidrawEmbeddableElement
+  | ExcalidrawCodeBlockElement;
 
 export type ExcalidrawNonSelectionElement = Exclude<
   ExcalidrawElement,
@@ -264,6 +284,7 @@ export type ExcalidrawBindableElement =
   | ExcalidrawImageElement
   | ExcalidrawIframeElement
   | ExcalidrawEmbeddableElement
+  | ExcalidrawCodeBlockElement
   | ExcalidrawFrameElement
   | ExcalidrawMagicFrameElement;
 
