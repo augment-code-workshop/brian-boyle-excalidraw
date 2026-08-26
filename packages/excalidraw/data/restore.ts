@@ -27,7 +27,13 @@ import {
 } from "@excalidraw/common";
 import {
   calculateFixedPointForNonElbowArrowBinding,
+  CODE_BLOCK_DEFAULT_HEIGHT,
+  CODE_BLOCK_DEFAULT_WIDTH,
+  DEFAULT_CODE_BLOCK_CODE,
+  DEFAULT_CODE_BLOCK_LANGUAGE,
+  DEFAULT_CODE_BLOCK_TITLE,
   getNonDeletedElements,
+  isCodeBlockLanguage,
   normalizeArrowhead,
   isPointInElement,
   isValidPolygon,
@@ -221,6 +227,7 @@ export const AllowedExcalidrawActiveTools: Record<
   custom: true,
   frame: true,
   embeddable: true,
+  codeblock: true,
   hand: true,
   laser: false,
   autoshape: false,
@@ -693,6 +700,30 @@ export const restoreElement = (
       };
 
       return handleOversizedLinearElements(normalizedRestoredElement);
+    }
+
+    case "codeblock": {
+      element = {
+        ...element,
+        width: element.width || CODE_BLOCK_DEFAULT_WIDTH,
+        height: element.height || CODE_BLOCK_DEFAULT_HEIGHT,
+        roundness: element.roundness ?? {
+          type: ROUNDNESS.ADAPTIVE_RADIUS,
+        },
+      };
+      return restoreElementWithProperties(element, {
+        title:
+          typeof element.title === "string"
+            ? element.title
+            : DEFAULT_CODE_BLOCK_TITLE,
+        language: isCodeBlockLanguage(element.language)
+          ? element.language
+          : DEFAULT_CODE_BLOCK_LANGUAGE,
+        code:
+          typeof element.code === "string"
+            ? element.code
+            : DEFAULT_CODE_BLOCK_CODE,
+      });
     }
 
     // generic elements

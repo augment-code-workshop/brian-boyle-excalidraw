@@ -12,7 +12,16 @@ import {
   MIME_TYPES,
 } from "@excalidraw/common";
 import { normalizeLink, toValidURL } from "@excalidraw/common";
-import { hashString } from "@excalidraw/element";
+import {
+  CODE_BLOCK_FONT_SIZE,
+  CODE_BLOCK_HEADER_HEIGHT,
+  CODE_BLOCK_LINE_HEIGHT,
+  CODE_BLOCK_PADDING,
+  getCodeBlockLines,
+  getCodeBlockPalette,
+  hashString,
+  tokenizeCodeLine,
+} from "@excalidraw/element";
 import { getUncroppedWidthAndHeight } from "@excalidraw/element";
 import {
   createPlaceholderEmbeddableLabel,
@@ -37,6 +46,7 @@ import { ShapeCache } from "@excalidraw/element";
 import { getElementAbsoluteCoords } from "@excalidraw/element";
 
 import type {
+  ExcalidrawCodeBlockElement,
   ExcalidrawElement,
   ExcalidrawTextElementWithContainer,
   NonDeletedExcalidrawElement,
@@ -175,6 +185,116 @@ const renderElementToSvg = (
       );
 
       addToRoot(g || node, element);
+      break;
+    }
+    case "codeblock": {
+      const codeBlock = element as ExcalidrawCodeBlockElement;
+      const palette = getCodeBlockPalette(renderConfig.theme);
+      const group = svgRoot.ownerDocument.createElementNS(SVG_NS, "g");
+      group.setAttribute(
+        "transform",
+        `translate(${offsetX || 0} ${
+          offsetY || 0
+        }) rotate(${degree} ${cx} ${cy})`,
+      );
+      if (opacity !== 1) {
+        group.setAttribute("opacity", `${opacity}`);
+      }
+
+      const shape = ShapeCache.generateElementShape(codeBlock, renderConfig);
+      const background = roughSVGDrawWithPrecision(
+        rsvg,
+        shape,
+        MAX_DECIMALS_FOR_SVG_EXPORT,
+      );
+      group.appendChild(background);
+
+      const clipId = `codeblock-clip-${hashString(codeBlock.id)}`;
+      const clipPath = svgRoot.ownerDocument.createElementNS(
+        SVG_NS,
+        "clipPath",
+      );
+      clipPath.setAttribute("id", clipId);
+      const clipRect = svgRoot.ownerDocument.createElementNS(SVG_NS, "rect");
+      clipRect.setAttribute("width", `${codeBlock.width}`);
+      clipRect.setAttribute("height", `${codeBlock.height}`);
+      clipPath.appendChild(clipRect);
+      svgRoot.appendChild(clipPath);
+
+      const content = svgRoot.ownerDocument.createElementNS(SVG_NS, "g");
+      content.setAttribute("clip-path", `url(#${clipId})`);
+
+      const addText = (
+        text: string,
+        x: number,
+        y: number,
+        color: string,
+        font: string,
+        anchor?: string,
+      ) => {
+        const node = svgRoot.ownerDocument.createElementNS(SVG_NS, "text");
+        node.textContent = text;
+        node.setAttribute("x", `${x}`);
+        node.setAttribute("y", `${y}`);
+        node.setAttribute("fill", color);
+        node.setAttribute("font", font);
+        if (anchor) {
+          node.setAttribute("text-anchor", anchor);
+        }
+        content.appendChild(node);
+      };
+
+      addText(
+        codeBlock.title || "Code",
+        CODE_BLOCK_PADDING,
+        27,
+        palette.title,
+        "600 16px system-ui, sans-serif",
+      );
+      addText(
+        codeBlock.language,
+        codeBlock.width - CODE_BLOCK_PADDING,
+        27,
+        palette.muted,
+        "12px system-ui, sans-serif",
+        "end",
+      );
+
+      const divider = svgRoot.ownerDocument.createElementNS(SVG_NS, "line");
+      divider.setAttribute("x1", `${CODE_BLOCK_PADDING}`);
+      divider.setAttribute("x2", `${codeBlock.width - CODE_BLOCK_PADDING}`);
+      divider.setAttribute("y1", `${CODE_BLOCK_HEADER_HEIGHT}`);
+      divider.setAttribute("y2", `${CODE_BLOCK_HEADER_HEIGHT}`);
+      divider.setAttribute("stroke", palette.divider);
+      content.appendChild(divider);
+
+      let y =
+        CODE_BLOCK_HEADER_HEIGHT + CODE_BLOCK_PADDING + CODE_BLOCK_FONT_SIZE;
+      const maxY = codeBlock.height - CODE_BLOCK_PADDING;
+      const maxLines = Math.max(
+        0,
+        Math.floor((maxY - y) / CODE_BLOCK_LINE_HEIGHT) + 1,
+      );
+      for (const line of getCodeBlockLines(codeBlock, maxLines)) {
+        const text = svgRoot.ownerDocument.createElementNS(SVG_NS, "text");
+        text.setAttribute("x", `${CODE_BLOCK_PADDING}`);
+        text.setAttribute("y", `${y}`);
+        text.setAttribute(
+          "font",
+          `${CODE_BLOCK_FONT_SIZE}px ui-monospace, SFMono-Regular, Consolas, monospace`,
+        );
+        for (const token of tokenizeCodeLine(line, codeBlock.language)) {
+          const span = svgRoot.ownerDocument.createElementNS(SVG_NS, "tspan");
+          span.textContent = token.text;
+          span.setAttribute("fill", palette[token.type]);
+          text.appendChild(span);
+        }
+        content.appendChild(text);
+        y += CODE_BLOCK_LINE_HEIGHT;
+      }
+
+      group.appendChild(content);
+      addToRoot(group, codeBlock);
       break;
     }
     case "iframe":

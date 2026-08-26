@@ -498,6 +498,7 @@ export const TOOL_TYPE = {
   frame: "frame",
   magicframe: "magicframe",
   embeddable: "embeddable",
+  codeblock: "codeblock",
   laser: "laser",
   autoshape: "autoshape",
   bucketfill: "bucketfill",

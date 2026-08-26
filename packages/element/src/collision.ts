@@ -471,6 +471,7 @@ export const intersectElementWithLineSegment = (
     case "text":
     case "iframe":
     case "embeddable":
+    case "codeblock":
     case "frame":
     case "selection":
     case "magicframe":

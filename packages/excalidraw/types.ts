@@ -160,6 +160,7 @@ export type ToolType =
   | "frame"
   | "magicframe"
   | "embeddable"
+  | "codeblock"
   | "laser"
   | "autoshape"
   | "bucketfill";
@@ -451,6 +452,7 @@ export interface AppState {
     | "compactStrokeStyles"
     | "compactOtherProperties"
     | "compactArrowProperties"
+    | "compactCodeBlockProperties"
     | null;
   openSidebar: { name: SidebarName; tab?: SidebarTabName } | null;
   openDialog:

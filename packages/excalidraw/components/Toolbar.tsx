@@ -23,6 +23,7 @@ import {
   MagicIcon,
   mermaidLogoIcon,
   DotsIcon,
+  codeIcon,
 } from "./icons";
 import {
   ArrowToolButton,
@@ -72,6 +73,7 @@ const ExtraToolsDropdown = ({
     activeTool.type === "lasso" &&
     app.state.preferredSelectionTool.type !== "lasso";
   const embeddableToolSelected = activeTool.type === "embeddable";
+  const codeBlockToolSelected = activeTool.type === "codeblock";
 
   return (
     <DropdownMenu open={isExtraToolsMenuOpen}>
@@ -80,6 +82,7 @@ const ExtraToolsDropdown = ({
           "App-toolbar__extra-tools-trigger--selected":
             frameToolSelected ||
             embeddableToolSelected ||
+            codeBlockToolSelected ||
             (isFullStylesPanel && drawShapeToolSelected) ||
             lassoToolSelected ||
             bucketFillToolSelected ||
@@ -98,6 +101,8 @@ const ExtraToolsDropdown = ({
           ? frameToolIcon
           : embeddableToolSelected
           ? EmbedIcon
+          : codeBlockToolSelected
+          ? codeIcon
           : isFullStylesPanel && drawShapeToolSelected
           ? drawShapeToolIcon
           : laserToolSelected && !app.props.isCollaborating
@@ -131,6 +136,15 @@ const ExtraToolsDropdown = ({
           disabled={isToolButtonDisabled(app, "embeddable")}
         >
           {t("toolBar.embeddable")}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => app.setActiveTool({ type: "codeblock" })}
+          icon={codeIcon}
+          data-testid="toolbar-codeblock"
+          selected={codeBlockToolSelected}
+          disabled={isToolButtonDisabled(app, "codeblock")}
+        >
+          {t("toolBar.codeblock")}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={() => app.setActiveTool({ type: "autoshape" })}

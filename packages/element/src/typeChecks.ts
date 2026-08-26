@@ -29,6 +29,7 @@ import type {
   ExcalidrawLineElement,
   ExcalidrawFlowchartNodeElement,
   ExcalidrawLinearElementSubType,
+  ExcalidrawCodeBlockElement,
 } from "./types";
 
 export const isInitializedImageElement = <T extends ExcalidrawElement>(
@@ -47,6 +48,12 @@ export const isEmbeddableElement = <T extends ExcalidrawElement>(
   element: T | null | undefined,
 ): element is T & ExcalidrawEmbeddableElement => {
   return !!element && element.type === "embeddable";
+};
+
+export const isCodeBlockElement = <T extends ExcalidrawElement>(
+  element: T | null | undefined,
+): element is T & ExcalidrawCodeBlockElement => {
+  return !!element && element.type === "codeblock";
 };
 
 export const isIframeElement = <T extends ExcalidrawElement>(
@@ -187,6 +194,7 @@ export const isBindableElement = <T extends ExcalidrawElement>(
       element.type === "image" ||
       element.type === "iframe" ||
       element.type === "embeddable" ||
+      element.type === "codeblock" ||
       element.type === "frame" ||
       element.type === "magicframe" ||
       (element.type === "text" && !element.containerId))
@@ -203,6 +211,7 @@ export const isRectanguloidElement = <T extends ExcalidrawElement>(
       element.type === "image" ||
       element.type === "iframe" ||
       element.type === "embeddable" ||
+      element.type === "codeblock" ||
       element.type === "frame" ||
       element.type === "magicframe" ||
       (element.type === "text" && !element.containerId))
@@ -221,6 +230,7 @@ export const isRectangularElement = <T extends ExcalidrawElement>(
       element.type === "text" ||
       element.type === "iframe" ||
       element.type === "embeddable" ||
+      element.type === "codeblock" ||
       element.type === "frame" ||
       element.type === "magicframe" ||
       element.type === "freedraw")
@@ -254,6 +264,7 @@ export const isExcalidrawElement = (
     case "rectangle":
     case "iframe":
     case "embeddable":
+    case "codeblock":
     case "ellipse":
     case "arrow":
     case "freedraw":
@@ -310,7 +321,8 @@ export const isUsingAdaptiveRadius = (type: string) =>
   type === "rectangle" ||
   type === "embeddable" ||
   type === "iframe" ||
-  type === "image";
+  type === "image" ||
+  type === "codeblock";
 
 export const isUsingProportionalRadius = (type: string) =>
   type === "line" || type === "arrow" || type === "diamond";
@@ -405,7 +417,8 @@ export const isEligibleFrameChildType = (type: ElementOrToolType) => {
     case "text":
     case "image":
     case "frame":
-    case "embeddable": {
+    case "embeddable":
+    case "codeblock": {
       return true;
     }
     default: {
