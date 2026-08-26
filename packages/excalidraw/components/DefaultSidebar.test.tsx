@@ -5,6 +5,7 @@ import { DEFAULT_SIDEBAR } from "@excalidraw/common";
 import { DefaultSidebar } from "../index";
 import {
   fireEvent,
+  GlobalTestState,
   waitFor,
   withExcalidrawDimensions,
 } from "../tests/test-utils";
@@ -17,6 +18,25 @@ import {
 const { h } = window;
 
 describe("DefaultSidebar", () => {
+  it("labels icon-only tab triggers", async () => {
+    await assertExcalidrawWithSidebar(
+      <DefaultSidebar />,
+      DEFAULT_SIDEBAR.name,
+      () => {
+        const tabTriggers =
+          GlobalTestState.renderResult.container.querySelectorAll(
+            ".sidebar-tab-trigger",
+          );
+
+        expect(
+          Array.from(tabTriggers, (trigger) =>
+            trigger.getAttribute("aria-label"),
+          ),
+        ).toEqual(["Find on canvas", "Personal Library"]);
+      },
+    );
+  });
+
   it("when `docked={undefined}` & `onDock={undefined}`, should allow docking", async () => {
     await assertExcalidrawWithSidebar(
       <DefaultSidebar />,
