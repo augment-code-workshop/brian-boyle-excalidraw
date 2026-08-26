@@ -16,7 +16,14 @@ import * as exportUtils from "../scene/export";
 
 import { API } from "./helpers/api";
 import { Pointer } from "./helpers/ui";
-import { act, fireEvent, render, screen, unmountComponent } from "./test-utils";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  unmountComponent,
+  waitFor,
+} from "./test-utils";
 
 unmountComponent();
 
@@ -198,5 +205,23 @@ describe("code block editing", () => {
       language: "json",
       code: '{"ok": true}',
     });
+  });
+});
+
+describe("code block mobile toolbar", () => {
+  it("selects the code-block tool from the phone extra-tools menu", async () => {
+    const { container } = await render(
+      <Excalidraw UIOptions={{ getFormFactor: () => "phone" }} />,
+    );
+    fireEvent.resize(window);
+    await waitFor(() => expect(h.app.editorInterface.formFactor).toBe("phone"));
+
+    fireEvent.click(
+      container.querySelector(".App-toolbar__extra-tools-trigger")!,
+    );
+    const tool = await screen.findByTestId("toolbar-codeblock");
+    fireEvent.click(tool);
+
+    expect(h.state.activeTool.type).toBe("codeblock");
   });
 });
