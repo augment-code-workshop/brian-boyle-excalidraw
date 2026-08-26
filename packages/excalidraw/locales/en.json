@@ -335,6 +335,8 @@
     "embeddable": "Web Embed",
     "codeblock": "Code block",
     "laser": "Laser pointer",
+    "persistentLaser": "Persistent laser",
+    "clearPersistentLaser": "Clear persistent strokes",
     "autoshape": "Draw to shape",
     "bucketfill": "Bucket fill",
     "hand": "Hand (panning tool)",

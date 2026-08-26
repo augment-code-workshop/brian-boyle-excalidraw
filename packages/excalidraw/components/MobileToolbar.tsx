@@ -33,6 +33,7 @@ import {
   bucketFillIcon,
   mermaidLogoIcon,
   MagicIcon,
+  TrashIcon,
   codeIcon,
 } from "./icons";
 
@@ -77,6 +78,7 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
   const frameToolSelected = activeTool.type === "frame";
   const drawShapeToolSelected = activeTool.type === "autoshape";
   const laserToolSelected = activeTool.type === "laser";
+  const isPersistentLaserMode = app.laserTrails.isPersistentMode;
   const embeddableToolSelected = activeTool.type === "embeddable";
   const codeBlockToolSelected = activeTool.type === "codeblock";
   const bucketFillToolSelected = activeTool.type === "bucketfill";
@@ -327,11 +329,30 @@ export const MobileToolbar = ({ app, setAppState }: MobileToolbarProps) => {
             onSelect={() => app.setActiveTool({ type: "laser" })}
             icon={laserPointerToolIcon}
             data-testid="toolbar-laser"
-            selected={laserToolSelected}
+            selected={laserToolSelected && !isPersistentLaserMode}
             shortcut={KEYS.K.toLocaleUpperCase()}
             disabled={isToolButtonDisabled(app, "laser")}
           >
             {t("toolBar.laser")}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onSelect={() => {
+              app.setActiveTool({ type: "laser" });
+              app.laserTrails.setPersistentMode(true);
+            }}
+            icon={laserPointerToolIcon}
+            data-testid="toolbar-persistent-laser"
+            selected={laserToolSelected && isPersistentLaserMode}
+            disabled={isToolButtonDisabled(app, "laser")}
+          >
+            {t("toolBar.persistentLaser")}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onSelect={() => app.laserTrails.clearPersistentTrails()}
+            icon={TrashIcon}
+            data-testid="clear-persistent-laser"
+          >
+            {t("toolBar.clearPersistentLaser")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "bucketfill" })}

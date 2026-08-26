@@ -23,6 +23,7 @@ import {
   MagicIcon,
   mermaidLogoIcon,
   DotsIcon,
+  TrashIcon,
   codeIcon,
 } from "./icons";
 import {
@@ -61,6 +62,7 @@ const ExtraToolsDropdown = ({
   setAppState: React.Component<any, AppState>["setState"];
 }) => {
   const [isExtraToolsMenuOpen, setIsExtraToolsMenuOpen] = useState(false);
+  const isPersistentLaserMode = app.laserTrails.isPersistentMode;
   const isFullStylesPanel = useStylesPanelMode() === "full";
   const { TTDDialogTriggerTunnel } = useTunnels();
 
@@ -160,11 +162,30 @@ const ExtraToolsDropdown = ({
           onSelect={() => app.setActiveTool({ type: "laser" })}
           icon={laserPointerToolIcon}
           data-testid="toolbar-laser"
-          selected={laserToolSelected}
+          selected={laserToolSelected && !isPersistentLaserMode}
           shortcut={KEYS.K.toLocaleUpperCase()}
           disabled={isToolButtonDisabled(app, "laser")}
         >
           {t("toolBar.laser")}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => {
+            app.setActiveTool({ type: "laser" });
+            app.laserTrails.setPersistentMode(true);
+          }}
+          icon={laserPointerToolIcon}
+          data-testid="toolbar-persistent-laser"
+          selected={laserToolSelected && isPersistentLaserMode}
+          disabled={isToolButtonDisabled(app, "laser")}
+        >
+          {t("toolBar.persistentLaser")}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => app.laserTrails.clearPersistentTrails()}
+          icon={TrashIcon}
+          data-testid="clear-persistent-laser"
+        >
+          {t("toolBar.clearPersistentLaser")}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={() => app.setActiveTool({ type: "bucketfill" })}

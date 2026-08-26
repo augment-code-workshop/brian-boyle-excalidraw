@@ -8,7 +8,7 @@ import { getLinkHandleFromCoords } from "../components/hyperlink/helpers";
 
 import { API } from "./helpers/api";
 import { Pointer } from "./helpers/ui";
-import { act, GlobalTestState, render, waitFor } from "./test-utils";
+import { act, fireEvent, GlobalTestState, render, waitFor } from "./test-utils";
 
 import type { Collaborator, ExcalidrawProps, SocketId } from "../types";
 
@@ -170,6 +170,125 @@ describe("laser tool interactions", () => {
     expect(h.state.scrollX).toBe(initialScrollX);
     expect(h.state.scrollY).toBe(initialScrollY);
     expect(GlobalTestState.interactiveCanvas.style.cursor).toContain("");
+  });
+
+  it("fades local strokes in the default mode", async () => {
+    await render(<Excalidraw />);
+
+    act(() => {
+      h.app.setActiveTool({ type: "laser" });
+    });
+
+    window.EXCALIDRAW_THROTTLE_RENDER = true;
+    vi.useFakeTimers();
+    try {
+      mouse.downAt(30, 30);
+      mouse.moveTo(60, 60);
+      mouse.upAt(60, 60);
+
+      const svgLayer = document.querySelector(".SVGLayer svg")!;
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1100);
+      });
+
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(0);
+    } finally {
+      window.EXCALIDRAW_THROTTLE_RENDER = undefined;
+      vi.useRealTimers();
+    }
+  });
+
+  it("retains and clears persistent strokes without adding scene elements", async () => {
+    await render(<Excalidraw />);
+
+    fireEvent.click(
+      GlobalTestState.renderResult.container.querySelector(
+        ".App-toolbar__extra-tools-trigger",
+      )!,
+    );
+    fireEvent.click(
+      document.querySelector('[data-testid="toolbar-persistent-laser"]')!,
+    );
+
+    expect(h.app.laserTrails.isPersistentMode).toBe(true);
+    expect(h.state.activeTool.type).toBe("laser");
+
+    window.EXCALIDRAW_THROTTLE_RENDER = true;
+    vi.useFakeTimers();
+    try {
+      mouse.downAt(30, 30);
+      mouse.moveTo(60, 60);
+      mouse.upAt(60, 60);
+
+      const svgLayer = document.querySelector(".SVGLayer svg")!;
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+      expect(vi.getTimerCount()).toBe(0);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000);
+      });
+
+      const persistentPath = svgLayer.querySelector("path")!;
+      const pathBeforeScroll = persistentPath.getAttribute("d");
+      act(() => {
+        h.app.updateScene({
+          appState: { scrollX: h.state.scrollX + 10 },
+        });
+      });
+
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(1);
+      expect(persistentPath.getAttribute("d")).not.toBe(pathBeforeScroll);
+      expect(h.app.scene.getElementsIncludingDeleted()).toHaveLength(0);
+
+      fireEvent.click(
+        GlobalTestState.renderResult.container.querySelector(
+          ".App-toolbar__extra-tools-trigger",
+        )!,
+      );
+      fireEvent.click(
+        document.querySelector('[data-testid="clear-persistent-laser"]')!,
+      );
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(20);
+      });
+
+      expect(svgLayer.querySelectorAll("path")).toHaveLength(0);
+    } finally {
+      window.EXCALIDRAW_THROTTLE_RENDER = undefined;
+      vi.useRealTimers();
+    }
+  });
+
+  it("resets persistent mode through default laser activation", async () => {
+    await render(<Excalidraw />);
+
+    h.app.laserTrails.setPersistentMode(true);
+    act(() => {
+      h.app.setActiveTool({ type: "laser" });
+    });
+
+    expect(h.app.laserTrails.isPersistentMode).toBe(false);
+  });
+
+  it("exposes persistent laser mode in the phone toolbar", async () => {
+    await render(<Excalidraw UIOptions={{ getFormFactor: () => "phone" }} />);
+    fireEvent.resize(window);
+    await waitFor(() => expect(h.app.editorInterface.formFactor).toBe("phone"));
+
+    fireEvent.click(
+      GlobalTestState.renderResult.container.querySelector(
+        ".mobile-toolbar .App-toolbar__extra-tools-trigger",
+      )!,
+    );
+    fireEvent.click(
+      document.querySelector('[data-testid="toolbar-persistent-laser"]')!,
+    );
+
+    expect(h.app.laserTrails.isPersistentMode).toBe(true);
+    expect(h.state.activeTool.type).toBe("laser");
   });
 
   it("cleans up remote laser trails when the last collaborator leaves", async () => {

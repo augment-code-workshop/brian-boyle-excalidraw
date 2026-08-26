@@ -4118,6 +4118,16 @@ class App extends React.Component<AppProps, AppState> {
     if (
       prevState.zoom.value !== this.state.zoom.value ||
       prevState.scrollX !== this.state.scrollX ||
+      prevState.scrollY !== this.state.scrollY ||
+      prevState.offsetLeft !== this.state.offsetLeft ||
+      prevState.offsetTop !== this.state.offsetTop
+    ) {
+      this.laserTrails.refreshPersistentTrails();
+    }
+
+    if (
+      prevState.zoom.value !== this.state.zoom.value ||
+      prevState.scrollX !== this.state.scrollX ||
       prevState.scrollY !== this.state.scrollY
     ) {
       this.props?.onScrollChange?.(
@@ -5978,6 +5988,10 @@ class App extends React.Component<AppProps, AppState> {
         `"${tool.type}" tool activation ignored — the active tool is controlled by the host via "props.activeTool"`,
       );
       return;
+    }
+
+    if (tool.type === "laser") {
+      this.laserTrails.setPersistentMode(false);
     }
 
     if (this.drawShape.hasPendingGesture()) {
