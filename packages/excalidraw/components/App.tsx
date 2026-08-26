@@ -13620,6 +13620,7 @@ class App extends React.Component<AppProps, AppState> {
       actionCut,
       actionCopy,
       actionPaste,
+      actionDuplicateSelection,
       CONTEXT_MENU_SEPARATOR,
       actionSelectAllElementsInFrame,
       actionRemoveAllElementsFromFrame,
@@ -13650,7 +13651,6 @@ class App extends React.Component<AppProps, AppState> {
       actionLink,
       actionCopyElementLink,
       CONTEXT_MENU_SEPARATOR,
-      actionDuplicateSelection,
       actionToggleElementLock,
       CONTEXT_MENU_SEPARATOR,
       actionDeleteSelected,
@@ -13671,7 +13671,7 @@ class App extends React.Component<AppProps, AppState> {
           event.target instanceof HTMLTextAreaElement ||
           event.target instanceof HTMLIFrameElement ||
           (event.target instanceof HTMLElement &&
-            event.target.classList.contains(CLASSES.FRAME_NAME))
+            event.target.closest(`.${CLASSES.FRAME_NAME}`))
         )
       ) {
         // prevent zooming the browser (but allow scrolling DOM)
