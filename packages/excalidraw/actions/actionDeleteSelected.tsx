@@ -188,6 +188,21 @@ const deleteSelectedElements = (
   };
 };
 
+const shouldConfirmDelete = (
+  elements: readonly ExcalidrawElement[],
+  appState: Readonly<AppState>,
+) => {
+  if (appState.selectedLinearElement?.isEditing) {
+    return false;
+  }
+
+  const selectedElements = getSelectedElements(elements, appState);
+  return (
+    selectedElements.length > 1 ||
+    selectedElements.some((element) => isFrameLikeElement(element))
+  );
+};
+
 const handleGroupEditingState = (
   appState: AppState,
   elements: readonly ExcalidrawElement[],
@@ -214,7 +229,8 @@ export const actionDeleteSelected = register<boolean>({
   trackEvent: {
     category: "element",
     action: "delete",
-    predicate: (_appState, _elements, isConfirmed) => isConfirmed !== true,
+    predicate: (appState, elements, isConfirmed) =>
+      isConfirmed === true || !shouldConfirmDelete(elements, appState),
   },
   perform: (elements, appState, formData, app) => {
     if (appState.selectedLinearElement?.isEditing) {
@@ -278,12 +294,7 @@ export const actionDeleteSelected = register<boolean>({
       };
     }
 
-    const selectedElements = getSelectedElements(elements, appState);
-    if (
-      formData !== true &&
-      (selectedElements.length > 1 ||
-        selectedElements.some((element) => isFrameLikeElement(element)))
-    ) {
+    if (formData !== true && shouldConfirmDelete(elements, appState)) {
       editorJotaiStore.set(activeConfirmDialogAtom, "deleteSelection");
       return {
         captureUpdate: CaptureUpdateAction.NEVER,
