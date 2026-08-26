@@ -74,6 +74,35 @@ describe("setActiveTool()", () => {
     expect(h.state.activeTool.customType).toBe("comment");
   });
 });
+describe("main toolbar", () => {
+  it("renders tools in the expected order", async () => {
+    await render(<Excalidraw />);
+
+    const expectedOrder = [
+      "hand",
+      "selection",
+      "eraser",
+      "rectangle",
+      "diamond",
+      "ellipse",
+      "arrow",
+      "line",
+      "freedraw",
+      "text",
+      "image",
+    ];
+    const toolbarTools = Array.from(
+      GlobalTestState.renderResult.container.querySelectorAll<HTMLElement>(
+        '.App-toolbar [data-testid^="toolbar-"]',
+      ),
+    )
+      .map((element) => element.dataset.testid?.replace("toolbar-", ""))
+      .filter((tool): tool is string => !!tool && expectedOrder.includes(tool));
+
+    expect(toolbarTools).toEqual(expectedOrder);
+  });
+});
+
 describe("findShapeByKey()", () => {
   const appWithPreferredTool = (
     preferredSelectionTool: "selection" | "lasso",

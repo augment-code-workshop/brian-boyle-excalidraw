@@ -29,6 +29,8 @@ import { t } from "../i18n";
 import { getSelectedElements, isSomeElementSelected } from "../scene";
 import { TrashIcon } from "../components/icons";
 import { IconButton } from "../components/IconButton";
+import { activeConfirmDialogAtom } from "../components/ActiveConfirmDialog";
+import { editorJotaiStore } from "../editor-jotai";
 
 import { useStylesPanelMode } from "../components/App";
 
@@ -186,6 +188,21 @@ const deleteSelectedElements = (
   };
 };
 
+const shouldConfirmDelete = (
+  elements: readonly ExcalidrawElement[],
+  appState: Readonly<AppState>,
+) => {
+  if (appState.selectedLinearElement?.isEditing) {
+    return false;
+  }
+
+  const selectedElements = getSelectedElements(elements, appState);
+  return (
+    selectedElements.length > 1 ||
+    selectedElements.some((element) => isFrameLikeElement(element))
+  );
+};
+
 const handleGroupEditingState = (
   appState: AppState,
   elements: readonly ExcalidrawElement[],
@@ -205,11 +222,16 @@ const handleGroupEditingState = (
   return appState;
 };
 
-export const actionDeleteSelected = register({
+export const actionDeleteSelected = register<boolean>({
   name: "deleteSelectedElements",
   label: "labels.delete",
   icon: TrashIcon,
-  trackEvent: { category: "element", action: "delete" },
+  trackEvent: {
+    category: "element",
+    action: "delete",
+    predicate: (appState, elements, isConfirmed) =>
+      isConfirmed === true || !shouldConfirmDelete(elements, appState),
+  },
   perform: (elements, appState, formData, app) => {
     if (appState.selectedLinearElement?.isEditing) {
       const { elementId, selectedPointsIndices } =
@@ -269,6 +291,13 @@ export const actionDeleteSelected = register({
           },
         },
         captureUpdate: CaptureUpdateAction.IMMEDIATELY,
+      };
+    }
+
+    if (formData !== true && shouldConfirmDelete(elements, appState)) {
+      editorJotaiStore.set(activeConfirmDialogAtom, "deleteSelection");
+      return {
+        captureUpdate: CaptureUpdateAction.NEVER,
       };
     }
 

@@ -19912,7 +19912,7 @@ exports[`history > singleplayer undo/redo > should support bidirectional binding
 
 exports[`history > singleplayer undo/redo > should support bidirectional bindings > should unbind rectangles from arrow on deletion and rebind on undo > [end of test] number of elements 1`] = `4`;
 
-exports[`history > singleplayer undo/redo > should support bidirectional bindings > should unbind rectangles from arrow on deletion and rebind on undo > [end of test] number of renders 1`] = `18`;
+exports[`history > singleplayer undo/redo > should support bidirectional bindings > should unbind rectangles from arrow on deletion and rebind on undo > [end of test] number of renders 1`] = `19`;
 
 exports[`history > singleplayer undo/redo > should support bidirectional bindings > should unbind rectangles from arrow on deletion and rebind on undo > [end of test] redo stack 1`] = `
 [
@@ -21601,7 +21601,7 @@ exports[`history > singleplayer undo/redo > should support element creation, del
 
 exports[`history > singleplayer undo/redo > should support element creation, deletion and appstate element selection change > [end of test] number of elements 1`] = `3`;
 
-exports[`history > singleplayer undo/redo > should support element creation, deletion and appstate element selection change > [end of test] number of renders 1`] = `29`;
+exports[`history > singleplayer undo/redo > should support element creation, deletion and appstate element selection change > [end of test] number of renders 1`] = `30`;
 
 exports[`history > singleplayer undo/redo > should support element creation, deletion and appstate element selection change > [end of test] redo stack 1`] = `[]`;
 
