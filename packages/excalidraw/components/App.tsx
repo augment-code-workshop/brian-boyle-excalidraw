@@ -5979,6 +5979,10 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
+    if (tool.type === "laser") {
+      this.laserTrails.setPersistentMode(false);
+    }
+
     if (this.drawShape.hasPendingGesture()) {
       // switching tools mid-sketch (e.g. paste resets to the selection tool)
       // must not strand the gesture — commit it through the finalize funnel

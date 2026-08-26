@@ -61,9 +61,7 @@ const ExtraToolsDropdown = ({
   setAppState: React.Component<any, AppState>["setState"];
 }) => {
   const [isExtraToolsMenuOpen, setIsExtraToolsMenuOpen] = useState(false);
-  const [isPersistentLaserMode, setIsPersistentLaserMode] = useState(
-    app.laserTrails.isPersistentMode,
-  );
+  const isPersistentLaserMode = app.laserTrails.isPersistentMode;
   const isFullStylesPanel = useStylesPanelMode() === "full";
   const { TTDDialogTriggerTunnel } = useTunnels();
 
@@ -147,11 +145,7 @@ const ExtraToolsDropdown = ({
           {t("toolBar.autoshape")}
         </DropdownMenu.Item>
         <DropdownMenu.Item
-          onSelect={() => {
-            app.laserTrails.setPersistentMode(false);
-            setIsPersistentLaserMode(false);
-            app.setActiveTool({ type: "laser" });
-          }}
+          onSelect={() => app.setActiveTool({ type: "laser" })}
           icon={laserPointerToolIcon}
           data-testid="toolbar-laser"
           selected={laserToolSelected && !isPersistentLaserMode}
@@ -162,9 +156,8 @@ const ExtraToolsDropdown = ({
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onSelect={() => {
-            app.laserTrails.setPersistentMode(true);
-            setIsPersistentLaserMode(true);
             app.setActiveTool({ type: "laser" });
+            app.laserTrails.setPersistentMode(true);
           }}
           icon={laserPointerToolIcon}
           data-testid="toolbar-persistent-laser"

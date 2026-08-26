@@ -252,6 +252,35 @@ describe("laser tool interactions", () => {
     }
   });
 
+  it("resets persistent mode through default laser activation", async () => {
+    await render(<Excalidraw />);
+
+    h.app.laserTrails.setPersistentMode(true);
+    act(() => {
+      h.app.setActiveTool({ type: "laser" });
+    });
+
+    expect(h.app.laserTrails.isPersistentMode).toBe(false);
+  });
+
+  it("exposes persistent laser mode in the phone toolbar", async () => {
+    await render(<Excalidraw UIOptions={{ getFormFactor: () => "phone" }} />);
+    fireEvent.resize(window);
+    await waitFor(() => expect(h.app.editorInterface.formFactor).toBe("phone"));
+
+    fireEvent.click(
+      GlobalTestState.renderResult.container.querySelector(
+        ".mobile-toolbar .App-toolbar__extra-tools-trigger",
+      )!,
+    );
+    fireEvent.click(
+      document.querySelector('[data-testid="toolbar-persistent-laser"]')!,
+    );
+
+    expect(h.app.laserTrails.isPersistentMode).toBe(true);
+    expect(h.state.activeTool.type).toBe("laser");
+  });
+
   it("cleans up remote laser trails when the last collaborator leaves", async () => {
     await render(<Excalidraw />);
 
